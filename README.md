@@ -13,6 +13,7 @@ HealthQuote AI Insurance is a machine learning project designed to predict insur
 8. [Model Evaluation](#model-evaluation)
 9. [Saving and Loading the Model](#saving-and-loading-the-model)
 10. [Making Predictions](#making-predictions)
+11. [Deploying with FastAPI](#deploying-with-fastapi)
 
 ## Installation
 
@@ -61,10 +62,71 @@ Once a satisfactory model is trained, it is saved to a file using joblib. This a
 
 With the model saved, predictions can be made on new data. By providing new input values (e.g., age, BMI, etc.), the model can estimate the expected insurance charges for an individual.
 
+## Deploying with FastAPI
+
+To make the insurance prediction model accessible via an API, FastAPI is used. Below is a quick guide on how to deploy the model:
+
+### 1. FastAPI Setup
+
+Ensure FastAPI is installed:
+
+```bash
+pip install fastapi
+pip install "uvicorn[standard]"
+```
+
+### 2. Create the API
+
+Create a new Python file (e.g., `main.py`) and include the following code:
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+import numpy as np
+
+# Load the trained model
+model = joblib.load('insurance_model.pkl')  # Ensure the file name matches the saved model
+
+# Initialize the FastAPI app
+app = FastAPI()
+
+# Define the input data model
+class InsuranceData(BaseModel):
+    age: int
+    sex: int
+    bmi: float
+    children: int
+    smoker: int
+    region: int
+
+@app.post('/predict')
+def predict_insurance(data: InsuranceData):
+    # Convert input data to numpy array
+    input_data = np.array([[data.age, data.sex, data.bmi, data.children, data.smoker, data.region]])
+    
+    # Make a prediction
+    prediction = model.predict(input_data)
+    
+    # Return the prediction
+    return {'insurance_cost': prediction[0]}
+```
+
+### 3. Run the API
+
+You can start the API using Uvicorn:
+
+```bash
+uvicorn main:app --reload
+```
+
+The API will be available at `http://127.0.0.1:8000`, and you can send POST requests to `/predict` to get insurance cost predictions.
+
 ## Project Structure
 
 - **Dataset (`new.csv`)**: Contains the data used for training and testing the model.
 - **Model File (`insurance_model.pkl`)**: The trained Linear Regression model, saved for reuse.
+- **API Code (`main.py`)**: FastAPI implementation to serve predictions.
 - **Requirements (`requirements.txt`)**: Lists all necessary Python libraries and dependencies.
 - **Documentation (`README.md`)**: Provides an overview and instructions for the project.
 
@@ -81,3 +143,5 @@ The dataset consists of 955 records, each with the following features:
 - **Charges**: The medical insurance costs billed.
 
 ---
+
+This README now includes the steps for deploying the insurance prediction model using FastAPI, making it accessible as a web service.
