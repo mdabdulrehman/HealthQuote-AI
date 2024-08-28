@@ -141,7 +141,3 @@ The dataset consists of 955 records, each with the following features:
 - **Smoker**: Smoking status (encoded as 0 for smoker, 1 for non-smoker).
 - **Region**: The geographical region of residence (encoded as numerical values).
 - **Charges**: The medical insurance costs billed.
-
----
-
-This README now includes the steps for deploying the insurance prediction model using FastAPI, making it accessible as a web service.
